@@ -4,7 +4,7 @@
   </a>
 </p>
 
-<h1 align="center">HyperFix</h1>
+
 
 <p align="center">
   <strong>Tout ce dont vous avez besoin. Rien de superflu.</strong>
