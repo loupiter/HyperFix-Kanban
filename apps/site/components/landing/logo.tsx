@@ -6,16 +6,16 @@ export function Logo() {
       <Image
         src="/logo-dark.svg"
         alt="HyperFix"
-        className="h-6 w-auto dark:hidden"
-        width={24}
-        height={24}
+        className="h-12 w-auto dark:hidden"
+        width={48}
+        height={48}
       />
       <Image
         src="/logo-light.svg"
         alt="HyperFix"
-        className="hidden h-6 w-auto dark:block"
-        width={24}
-        height={24}
+        className="hidden h-12 w-auto dark:block"
+        width={48}
+        height={48}
       />
     </span>
   );
