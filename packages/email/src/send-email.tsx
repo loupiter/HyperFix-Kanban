@@ -17,6 +17,17 @@ import WorkspaceInvitationEmail, {
 
 config();
 
+const DEFAULT_FROM_NAME = "HyperFix";
+
+function resolveFromAddress(): string | undefined {
+  const raw = process.env.SMTP_FROM?.trim();
+  if (!raw) return undefined;
+  const displayName = process.env.SMTP_FROM_NAME?.trim() || DEFAULT_FROM_NAME;
+  const angleMatch = raw.match(/<([^>]+)>/);
+  const address = (angleMatch ? angleMatch[1] : raw).trim();
+  return `${displayName} <${address}>`;
+}
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   secure: process.env.SMTP_SECURE !== "false",
@@ -37,7 +48,7 @@ export const sendMagicLinkEmail = async (
   const emailTemplate = await render(MagicLinkEmail(data));
   try {
     await transporter.sendMail({
-      from: process.env.SMTP_FROM,
+      from: resolveFromAddress(),
       to,
       subject,
       html: emailTemplate,
@@ -55,7 +66,7 @@ export const sendOtpEmail = async (
   const emailTemplate = await render(OtpEmail(data));
   try {
     await transporter.sendMail({
-      from: process.env.SMTP_FROM,
+      from: resolveFromAddress(),
       to,
       subject,
       html: emailTemplate,
@@ -73,7 +84,7 @@ export const sendPasswordResetEmail = async (
   const emailTemplate = await render(PasswordResetEmail(data));
   try {
     await transporter.sendMail({
-      from: process.env.SMTP_FROM,
+      from: resolveFromAddress(),
       to,
       subject,
       html: emailTemplate,
@@ -102,7 +113,7 @@ export const sendWorkspaceInvitationEmail = async (
       WorkspaceInvitationEmail({ ...data, to }),
     );
     await transporter.sendMail({
-      from: process.env.SMTP_FROM,
+      from: resolveFromAddress(),
       to,
       subject,
       html: emailTemplate,
@@ -126,7 +137,7 @@ export const sendNotificationEmail = async (
   try {
     const emailTemplate = await render(NotificationEmail(data));
     await transporter.sendMail({
-      from: process.env.SMTP_FROM,
+      from: resolveFromAddress(),
       to,
       subject,
       html: emailTemplate,
