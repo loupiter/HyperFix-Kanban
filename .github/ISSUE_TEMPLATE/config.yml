@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: HyperFix Documentation
+    url: https://coubeche.hypeer.cloud/docs/core
+    about: Check our documentation for answers to common questions
+  - name: HyperFix Discord Community
+    url: https://discord.gg/rU4tSyhXXU
+    about: Join our Discord server to chat with the community and get help
+  - name: GitHub Discussions
+    url: https://github.com/orgs/samalehzen/discussions
+    about: For general questions and discussions about HyperFix
+  - name: Support HyperFix
+    url: https://github.com/sponsors/andrejsshell
+    about: Help keep HyperFix maintained and evolving

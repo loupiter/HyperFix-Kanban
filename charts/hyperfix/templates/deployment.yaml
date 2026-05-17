@@ -1,0 +1,97 @@
+{{- $corsOrigins := .Values.hyperfix.env.corsOrigins -}}
+{{- $corsOriginsValue := "" -}}
+{{- if kindIs "slice" $corsOrigins -}}
+  {{- $corsOriginsValue = join "," $corsOrigins -}}
+{{- else if $corsOrigins -}}
+  {{- $corsOriginsValue = $corsOrigins -}}
+{{- else if .Values.hyperfix.env.clientUrl -}}
+  {{- $corsOriginsValue = .Values.hyperfix.env.clientUrl -}}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hyperfix.fullname" . }}
+  labels:
+    {{- include "hyperfix.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "hyperfix.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "hyperfix.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "hyperfix.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: hyperfix
+          securityContext:
+            {{- toYaml .Values.hyperfix.securityContext | nindent 12 }}
+          image: "{{ .Values.hyperfix.image.repository }}:{{ .Values.hyperfix.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.hyperfix.image.pullPolicy }}
+          ports:
+            - name: hyperfix
+              containerPort: {{ .Values.hyperfix.service.targetPort }}
+              protocol: TCP
+          env:
+            - name: KANEO_CLIENT_URL
+              value: "{{ .Values.hyperfix.env.clientUrl }}"
+            - name: CORS_ORIGINS
+              value: {{ $corsOriginsValue | quote }}
+            - name: AUTH_SECRET
+              {{- if .Values.hyperfix.env.existingSecret.enabled }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.hyperfix.env.existingSecret.name }}
+                  key: {{ .Values.hyperfix.env.existingSecret.key }}
+              {{- else }}
+              value: "{{ .Values.hyperfix.env.authSecret }}"
+              {{- end }}
+            - name: DATABASE_URL
+              {{- if .Values.hyperfix.env.database.external.enabled }}
+              {{- if .Values.hyperfix.env.database.external.existingSecret.enabled }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.hyperfix.env.database.external.existingSecret.name }}
+                  key: {{ .Values.hyperfix.env.database.external.existingSecret.passwordKey }}
+              {{- else }}
+              value: "postgresql://{{ .Values.hyperfix.env.database.external.username }}:{{ .Values.hyperfix.env.database.external.password }}@{{ .Values.hyperfix.env.database.external.host }}:{{ .Values.hyperfix.env.database.external.port }}/{{ .Values.hyperfix.env.database.external.database }}"
+              {{- end }}
+              {{- else }}
+              value: "postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "hyperfix.fullname" . }}-postgresql:{{ .Values.postgresql.service.port }}/{{ .Values.postgresql.auth.database }}"
+              {{- end }}
+            - name: DISABLE_REGISTRATION
+              value: {{ .Values.hyperfix.env.disableRegistration | quote }}
+            - name: DISABLE_PASSWORD_REGISTRATION
+              value: {{ .Values.hyperfix.env.disablePasswordRegistration | quote }}
+            {{- with .Values.hyperfix.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.hyperfix.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.hyperfix.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.hyperfix.resources | nindent 12 }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

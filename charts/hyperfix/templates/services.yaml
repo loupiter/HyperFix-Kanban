@@ -1,0 +1,39 @@
+# HyperFix Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "hyperfix.fullname" . }}-hyperfix
+  labels:
+    {{- include "hyperfix.labels" . | nindent 4 }}
+    app.kubernetes.io/component: hyperfix
+spec:
+  type: {{ .Values.hyperfix.service.type }}
+  ports:
+    - port: {{ .Values.hyperfix.service.port }}
+      targetPort: hyperfix
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "hyperfix.selectorLabels" . | nindent 4 }}
+
+{{- if .Values.postgresql.enabled }}
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "hyperfix.fullname" . }}-postgresql
+  labels:
+    {{- include "hyperfix.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+spec:
+  type: {{ .Values.postgresql.service.type }}
+  ports:
+    - port: {{ .Values.postgresql.service.port }}
+      targetPort: postgresql
+      protocol: TCP
+      name: postgresql
+  selector:
+    {{- include "hyperfix.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+{{- end }}

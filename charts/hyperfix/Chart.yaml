@@ -1,0 +1,31 @@
+apiVersion: v2
+name: hyperfix
+description: HyperFix - Plateforme de gestion Kanban centralisée pour Coubeche Group.
+type: application
+# 0.4.0: add hyperfix.extraEnv for arbitrary env vars on the hyperfix container
+version: 0.4.0
+appVersion: "2.6.0"
+keywords:
+  - project-management
+  - kanban
+  - task-management
+  - productivity
+  - collaboration
+home: https://coubeche.hypeer.cloud
+sources:
+  - https://github.com/samalehzen/hyper
+icon: https://coubeche.hypeer.cloud/logo-text.png
+maintainers:
+  - name: HyperFix Team
+    url: https://github.com/samalehzen
+    email: info@coubeche.hypeer.cloud
+annotations:
+  artifacthub.io/license: MIT
+  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/features: |
+    - Simple & Fast: Minimalist interface with powerful features
+    - Self-hosted: Full control over your data
+    - Customizable: Make it yours with extensive customization options
+    - Open Source: MIT licensed
+kubeVersion: ">=1.19.0-0"
