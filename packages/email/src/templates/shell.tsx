@@ -4,6 +4,7 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Preview,
   Section,
   Text,
@@ -16,6 +17,8 @@ type EmailShellProps = {
   preview: string;
   title: string;
   subtitle?: string;
+  brandLogoSrc?: string;
+  brandLogoDarkModeSrc?: string;
   children: React.ReactNode;
 };
 
@@ -23,16 +26,48 @@ export function EmailShell({
   preview,
   title,
   subtitle,
+  brandLogoSrc,
+  brandLogoDarkModeSrc,
   children,
 }: EmailShellProps) {
   return (
     <Html>
-      <Head />
+      <Head>
+        {brandLogoDarkModeSrc ? <style>{brandLogoColorSchemeCss}</style> : null}
+      </Head>
       <Preview>{preview}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={content}>
-            <Text style={badge}>HyperFix</Text>
+            {brandLogoSrc ? (
+              brandLogoDarkModeSrc ? (
+                <>
+                  <Img
+                    src={brandLogoSrc}
+                    alt="HyperFix"
+                    width="150"
+                    className="brand-logo-light"
+                    style={brandLogo}
+                  />
+                  <Img
+                    src={brandLogoDarkModeSrc}
+                    alt="HyperFix"
+                    width="150"
+                    className="brand-logo-dark"
+                    style={brandLogoHidden}
+                  />
+                </>
+              ) : (
+                <Img
+                  src={brandLogoSrc}
+                  alt="HyperFix"
+                  width="150"
+                  style={brandLogo}
+                />
+              )
+            ) : (
+              <Text style={badge}>HyperFix</Text>
+            )}
             <Heading style={heading}>{title}</Heading>
             {subtitle ? <Text style={subtitleText}>{subtitle}</Text> : null}
             <Section style={body}>{children}</Section>
@@ -123,6 +158,25 @@ const badge = {
   letterSpacing: "0.1em",
   textTransform: "uppercase" as const,
 };
+
+const brandLogo = {
+  display: "block",
+  height: "auto",
+  margin: "0 0 12px",
+  maxWidth: "150px",
+};
+
+const brandLogoHidden = {
+  ...brandLogo,
+  display: "none",
+};
+
+const brandLogoColorSchemeCss = `
+@media (prefers-color-scheme: dark) {
+  .brand-logo-light { display: none !important; }
+  .brand-logo-dark { display: block !important; }
+}
+`;
 
 const heading = {
   margin: "0 0 8px",
